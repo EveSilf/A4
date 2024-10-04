@@ -1,13 +1,10 @@
 import { ObjectId } from "mongodb";
-
-import { Router, getExpressRouter } from "./framework/router";
-
-import { Authing, Friending, Posting, Sessioning } from "./app";
+import { z } from "zod";
+import { Authing, Filtering, Friending, Grouping, Posting, Sessioning } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
+import { getExpressRouter, Router } from "./framework/router";
 import Responses from "./responses";
-
-import { z } from "zod";
 
 /**
  * Web server routes for the app. Implements synchronizations between concepts.
@@ -151,6 +148,124 @@ class Routes {
     const user = Sessioning.getUser(session);
     const fromOid = (await Authing.getUserByUsername(from))._id;
     return await Friending.rejectRequest(fromOid, user);
+  }
+
+  //Grouping
+  @Router.post("/groups")
+  async createGroup(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.create(user, groupName);
+  }
+
+  @Router.post("/groups/:groupName/users")
+  async addMemberToGroup(session: SessionDoc, groupName: string, username: string) {
+    const user = Sessioning.getUser(session);
+    const creator = await Authing.authenticate(user.username, user.password);
+    const group = await Grouping.getByName(groupName);
+
+    if (creator === group.creator) {
+      await Grouping.addUser(username, groupName);
+      return { msg: "User added to group." };
+    } else {
+      throw new Error("Unsuccessful add: Wrong creator.");
+    }
+  }
+
+  @Router.delete("/groups/:groupName/users")
+  async deleteMemberFromGroup(session: SessionDoc, groupName: string, username: string) {
+    const user = Sessioning.getUser(session);
+    const creator = await Authing.authenticate(user.username, user.password);
+    const group = await Grouping.getByName(groupName);
+
+    if (creator === group.creator) {
+      await Grouping.deleteUser(username, groupName);
+      return { msg: "User removed from group." };
+    } else {
+      throw new Error("Unsuccessful remove: Wrong creator.");
+    }
+  }
+
+  @Router.delete("/groups/:groupId")
+  async deleteGroup(session: SessionDoc, groupId: string) {
+    const user = Sessioning.getUser(session);
+    const group = await Grouping.getById(groupId);
+    const creator = await Authing.authenticate(user.username, user.password);
+
+    if (creator === group.creator) {
+      await Grouping.delete(groupId);
+      return { msg: "Group deleted." };
+    } else {
+      throw new Error("Unauthorized action.");
+    }
+  }
+
+  //Filtering
+  @Router.post("/filters")
+  async addFilter(filterName: string) {
+    return await Filtering.add(filterName);
+  }
+
+  @Router.delete("/filters/:name")
+  async removeFilter(filterName: string) {
+    return await Filtering.remove(filterName);
+  }
+
+  @Router.get("/filters")
+  async filterPosts() {
+    return await Filtering.filter(Filtering.filters);
+  }
+
+  @Router.post("/filters/apply")
+  async applyFilters(session: SessionDoc, tags: ObjectId[]) {
+    const posts = await Posting.getPosts();
+    return await Filtering.filter(tags);
+  }
+
+  // Filter Grouping
+  @Router.post("/filter-groupings")
+  async createFilterGrouping(n: string, t: ObjectId[]) {
+    // Action: Create a new filter grouping.
+  }
+
+  @Router.post("/filter-groupings/:id/tags")
+  async addTagsToFilterGrouping(id: ObjectId, t: ObjectId[]) {
+    // Action: Add tags from filter grouping with given id.
+  }
+
+  @Router.delete("/filter-groupings/:id/tags")
+  async removeTagsFromFilterGrouping(id: ObjectId, t: ObjectId[]) {
+    // Action: Remove tags from filter grouping with given id.
+  }
+
+  @Router.delete("/filter-groupings/:id")
+  async deleteFilterGrouping(id: ObjectId) {
+    // Action: Delete the filter grouping with given id.
+  }
+
+  //Quizzing
+  @Router.post("/quizzes")
+  async createQuiz(q: string, t: Set<string>, o: Set<string>, a: String) {
+    // Action: Create a new quiz
+  }
+
+  @Router.patch("/quizzes/:id/options")
+  async modifyQuizOptions(id: ObjectId, o: Set<string>) {
+    // Action: Modify answer options for quiz with given id.
+  }
+
+  @Router.patch("/quizzes/:id/question")
+  async modifyQuizQuestion(id: ObjectId, q: string) {
+    // Action: Modify question for quiz with given id.
+  }
+
+  @Router.patch("/quizzes/:id/filters")
+  async modifyQuizFilters(id: ObjectId, t: ObjectId[]) {
+    // Action: Update filters for quiz with given id.
+  }
+
+  @Router.delete("/quizzes/:id")
+  async deleteQuiz(id: ObjectId) {
+    // Action: Delete quiz with given id.
   }
 }
 

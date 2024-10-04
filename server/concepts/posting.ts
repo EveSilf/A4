@@ -1,10 +1,10 @@
 import { ObjectId } from "mongodb";
-
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface PostOptions {
   backgroundColor?: string;
+  tags?: string;
 }
 
 export interface PostDoc extends BaseDoc {
@@ -64,10 +64,7 @@ export default class PostingConcept {
 }
 
 export class PostAuthorNotMatchError extends NotAllowedError {
-  constructor(
-    public readonly author: ObjectId,
-    public readonly _id: ObjectId,
-  ) {
+  constructor(public readonly author: ObjectId, public readonly _id: ObjectId) {
     super("{0} is not the author of post {1}!", author, _id);
   }
 }

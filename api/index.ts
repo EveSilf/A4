@@ -1,16 +1,15 @@
+import MongoStore from "connect-mongo";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
 import logger from "morgan";
 import * as path from "path";
+import { connectDb } from "../server/db";
+import { appRouter } from "../server/routes";
 
 // The following line sets up the environment variables before everything else.
 dotenv.config();
-
-import MongoStore from "connect-mongo";
-import { connectDb } from "../server/db";
-import { appRouter } from "../server/routes";
 
 export const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,3 +48,5 @@ void connectDb().then(() => {
     console.log("Started listening on port", PORT);
   });
 });
+
+export default app;
