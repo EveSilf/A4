@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb";
 import { z } from "zod";
+import DocCollection from "../framework/doc";
 import { Authing, Filtering, Friending, Grouping, Posting, Sessioning } from "./app";
+import { FilterDoc } from "./concepts/filtering";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import { getExpressRouter, Router } from "./framework/router";
@@ -216,24 +218,24 @@ class Routes {
   }
 
   @Router.post("/filters/apply")
-  async applyFilters(session: SessionDoc, tags: ObjectId[]) {
+  async applyFilters(session: SessionDoc, tags: DocCollection<FilterDoc>) {
     const posts = await Posting.getPosts();
     return await Filtering.filter(tags);
   }
 
   // Filter Grouping
   @Router.post("/filter-groupings")
-  async createFilterGrouping(n: string, t: ObjectId[]) {
+  async createFilterGrouping(n: string, t: DocCollection<FilterDoc>) {
     // Action: Create a new filter grouping.
   }
 
   @Router.post("/filter-groupings/:id/tags")
-  async addTagsToFilterGrouping(id: ObjectId, t: ObjectId[]) {
+  async addTagsToFilterGrouping(id: ObjectId, t: DocCollection<FilterDoc>) {
     // Action: Add tags from filter grouping with given id.
   }
 
   @Router.delete("/filter-groupings/:id/tags")
-  async removeTagsFromFilterGrouping(id: ObjectId, t: ObjectId[]) {
+  async removeTagsFromFilterGrouping(id: ObjectId, t: DocCollection<FilterDoc>) {
     // Action: Remove tags from filter grouping with given id.
   }
 
@@ -244,12 +246,12 @@ class Routes {
 
   //Quizzing
   @Router.post("/quizzes")
-  async createQuiz(q: string, t: Set<string>, o: Set<string>, a: String) {
+  async createQuiz(q: string, t: DocCollection<FilterDoc>, o: Set<string>, a: String) {
     // Action: Create a new quiz
   }
 
   @Router.patch("/quizzes/:id/options")
-  async modifyQuizOptions(id: ObjectId, o: Set<string>) {
+  async modifyQuizOptions(id: ObjectId, o: DocCollection<FilterDoc>) {
     // Action: Modify answer options for quiz with given id.
   }
 
@@ -259,7 +261,7 @@ class Routes {
   }
 
   @Router.patch("/quizzes/:id/filters")
-  async modifyQuizFilters(id: ObjectId, t: ObjectId[]) {
+  async modifyQuizFilters(id: ObjectId, t: DocCollection<FilterDoc>) {
     // Action: Update filters for quiz with given id.
   }
 

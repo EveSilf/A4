@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import { Posting } from "../app";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
@@ -46,7 +45,7 @@ export default class FilteringConcept {
     return { msg: "Filter removed successfully!", name: filterName };
   }
 
-  async filter(filterNames: DocCollection<FilterDoc>): Promise<ObjectId[]> {
+  async filter(filterNames: DocCollection<FilterDoc>) {
     // Retrieve all posts and filter them based on the tags
     const FilteredPosts = await Posting.posts.readMany({ tags: filterNames });
     return FilteredPosts;
