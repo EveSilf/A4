@@ -1,5 +1,5 @@
-import FilteringConcept from "concepts/filtering";
 import AuthenticatingConcept from "./concepts/authenticating";
+import FilteringConcept from "./concepts/filtering";
 import FriendingConcept from "./concepts/friending";
 import GroupingConcept from "./concepts/grouping";
 import PostingConcept from "./concepts/posting";

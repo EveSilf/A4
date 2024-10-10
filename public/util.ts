@@ -80,9 +80,18 @@ const operations: Operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
-  //
-  // ...
-  //
+  {
+    name: "Create Group",
+    endpoint: "/api/groups",
+    method: "POST",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Add Group User",
+    endpoint: "/api/groups/:id",
+    method: "PATCH",
+    fields: { id: "input", userId: "input" },
+  },
 ];
 
 /*

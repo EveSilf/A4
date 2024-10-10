@@ -1,6 +1,8 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
+require("dotenv").config({ path: "~/Desktop/A4/.env" });
 
 const mongoUri = process.env.MONGO_SRV;
+console.log(mongoUri);
 if (!mongoUri) {
   throw new Error("Please add the MongoDB connection SRV as 'MONGO_SRV'");
 }

@@ -11,7 +11,6 @@ import {
   ObjectId,
   OptionalUnlessRequiredId,
   ReplaceOptions,
-  UpdateFilter,
   UpdateResult,
   WithoutId,
 } from "mongodb";
@@ -148,18 +147,6 @@ export default class DocCollection<Schema extends BaseDoc> {
     }
     await this.deleteOne({ _id: one._id } as Filter<Schema>);
     return one;
-  }
-
-  /**
-   * Update the document that matches `filter` with fields in `update`; only fields in `update` are updated.
-   * Allows $push by changing the update to UpdateFilter
-   * @returns an object describing what was updated
-   */
-  async UpdateFilterOne(filter: Filter<Schema>, update: UpdateFilter<Schema>, options?: FindOneAndUpdateOptions): Promise<UpdateResult<Schema>> {
-    const safe = this.withoutInternal(update);
-    safe.dateUpdated = new Date();
-
-    return await this.collection.updateOne(filter, { ...update, $set: { ...safe } }, options);
   }
 
   /*

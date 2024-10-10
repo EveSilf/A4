@@ -27,7 +27,7 @@ export default class FilteringConcept {
     const existingFilter = await this.filters.readOne({ name: filterName });
     if (existingFilter) throw new NotAllowedError("Filter already exists!");
 
-    // Add new filter  to collection
+    // Add new filter to collection
     const _id = await this.filters.createOne({ name: filterName });
     return { msg: "Filter added!", _id, name: filterName };
   }
@@ -45,9 +45,9 @@ export default class FilteringConcept {
     return { msg: "Filter removed successfully!", name: filterName };
   }
 
-  async filter(filterNames: DocCollection<FilterDoc>) {
+  async filter(filterNames: string[]) {
     // Retrieve all posts and filter them based on the tags
-    const FilteredPosts = await Posting.posts.readMany({ tags: filterNames });
+    const FilteredPosts = await Posting.posts.readMany({ tags: { $in: filterNames } });
     return FilteredPosts;
   }
 }

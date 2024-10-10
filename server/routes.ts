@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb";
 import { z } from "zod";
-import DocCollection from "../framework/doc";
 import { Authing, Filtering, Friending, Grouping, Posting, Sessioning } from "./app";
 import { FilterDoc } from "./concepts/filtering";
 import { PostOptions } from "./concepts/posting";
@@ -160,40 +159,37 @@ class Routes {
   }
 
   @Router.post("/groups/:groupName/users")
-  async addMemberToGroup(session: SessionDoc, groupName: string, username: string) {
-    const user = Sessioning.getUser(session);
-    const creator = await Authing.authenticate(user.username, user.password);
+  async addMemberToGroup(session: SessionDoc, groupName: string, userId: ObjectId) {
+    const authorId = Sessioning.getUser(session);
     const group = await Grouping.getByName(groupName);
 
-    if (creator === group.creator) {
-      await Grouping.addUser(username, groupName);
+    if (authorId === group.author) {
+      await Grouping.addUser(userId, groupName);
       return { msg: "User added to group." };
     } else {
-      throw new Error("Unsuccessful add: Wrong creator.");
+      throw new Error("Unsuccessful add: Wrong author.");
     }
   }
 
   @Router.delete("/groups/:groupName/users")
-  async deleteMemberFromGroup(session: SessionDoc, groupName: string, username: string) {
-    const user = Sessioning.getUser(session);
-    const creator = await Authing.authenticate(user.username, user.password);
+  async deleteMemberFromGroup(session: SessionDoc, groupName: string, userId: ObjectId) {
+    const authorId = Sessioning.getUser(session);
     const group = await Grouping.getByName(groupName);
 
-    if (creator === group.creator) {
-      await Grouping.deleteUser(username, groupName);
+    if (authorId === group.author) {
+      await Grouping.deleteUser(userId, groupName);
       return { msg: "User removed from group." };
     } else {
-      throw new Error("Unsuccessful remove: Wrong creator.");
+      throw new Error("Unsuccessful remove: Wrong author.");
     }
   }
 
   @Router.delete("/groups/:groupId")
-  async deleteGroup(session: SessionDoc, groupId: string) {
-    const user = Sessioning.getUser(session);
+  async deleteGroup(session: SessionDoc, groupId: ObjectId) {
+    const authorId = Sessioning.getUser(session);
     const group = await Grouping.getById(groupId);
-    const creator = await Authing.authenticate(user.username, user.password);
 
-    if (creator === group.creator) {
+    if (authorId === group.author) {
       await Grouping.delete(groupId);
       return { msg: "Group deleted." };
     } else {
@@ -214,60 +210,11 @@ class Routes {
 
   @Router.get("/filters")
   async filterPosts() {
-    return await Filtering.filter(Filtering.filters);
-  }
-
-  @Router.post("/filters/apply")
-  async applyFilters(session: SessionDoc, tags: DocCollection<FilterDoc>) {
-    const posts = await Posting.getPosts();
-    return await Filtering.filter(tags);
-  }
-
-  // Filter Grouping
-  @Router.post("/filter-groupings")
-  async createFilterGrouping(n: string, t: DocCollection<FilterDoc>) {
-    // Action: Create a new filter grouping.
-  }
-
-  @Router.post("/filter-groupings/:id/tags")
-  async addTagsToFilterGrouping(id: ObjectId, t: DocCollection<FilterDoc>) {
-    // Action: Add tags from filter grouping with given id.
-  }
-
-  @Router.delete("/filter-groupings/:id/tags")
-  async removeTagsFromFilterGrouping(id: ObjectId, t: DocCollection<FilterDoc>) {
-    // Action: Remove tags from filter grouping with given id.
-  }
-
-  @Router.delete("/filter-groupings/:id")
-  async deleteFilterGrouping(id: ObjectId) {
-    // Action: Delete the filter grouping with given id.
-  }
-
-  //Quizzing
-  @Router.post("/quizzes")
-  async createQuiz(q: string, t: DocCollection<FilterDoc>, o: Set<string>, a: String) {
-    // Action: Create a new quiz
-  }
-
-  @Router.patch("/quizzes/:id/options")
-  async modifyQuizOptions(id: ObjectId, o: DocCollection<FilterDoc>) {
-    // Action: Modify answer options for quiz with given id.
-  }
-
-  @Router.patch("/quizzes/:id/question")
-  async modifyQuizQuestion(id: ObjectId, q: string) {
-    // Action: Modify question for quiz with given id.
-  }
-
-  @Router.patch("/quizzes/:id/filters")
-  async modifyQuizFilters(id: ObjectId, t: DocCollection<FilterDoc>) {
-    // Action: Update filters for quiz with given id.
-  }
-
-  @Router.delete("/quizzes/:id")
-  async deleteQuiz(id: ObjectId) {
-    // Action: Delete quiz with given id.
+    const filterNames: string[] = [];
+    Filtering.filters.readMany((filter: FilterDoc) => {
+      filterNames.push(filter.name);
+    });
+    return await Filtering.filter(filterNames);
   }
 }
 
