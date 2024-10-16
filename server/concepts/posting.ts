@@ -4,13 +4,13 @@ import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface PostOptions {
   backgroundColor?: string;
-  tags?: string;
 }
 
 export interface PostDoc extends BaseDoc {
   author: ObjectId;
   content: string;
   options?: PostOptions;
+  tags: string[];
 }
 
 /**
@@ -64,7 +64,10 @@ export default class PostingConcept {
 }
 
 export class PostAuthorNotMatchError extends NotAllowedError {
-  constructor(public readonly author: ObjectId, public readonly _id: ObjectId) {
+  constructor(
+    public readonly author: ObjectId,
+    public readonly _id: ObjectId,
+  ) {
     super("{0} is not the author of post {1}!", author, _id);
   }
 }

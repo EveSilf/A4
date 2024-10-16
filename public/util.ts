@@ -72,7 +72,7 @@ const operations: Operation[] = [
     name: "Update Post",
     endpoint: "/api/posts/:id",
     method: "PATCH",
-    fields: { id: "input", content: "input", options: { backgroundColor: "input" } },
+    fields: { id: "input", content: "input", tags: "input", options: { backgroundColor: "input" } },
   },
   {
     name: "Delete Post",
@@ -87,10 +87,76 @@ const operations: Operation[] = [
     fields: { groupName: "input" },
   },
   {
+    name: "Get Groups (empty for all)",
+    endpoint: "/api/groups",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
     name: "Add Group User",
     endpoint: "/api/groups/:id",
     method: "PATCH",
-    fields: { id: "input", userId: "input" },
+    fields: { userId: "input", id: "input" },
+  },
+  {
+    name: "Delete Group User",
+    endpoint: "/api/groups/:id",
+    method: "DELETE",
+    fields: { userId: "input", id: "input" },
+  },
+  {
+    name: "Delete Group",
+    endpoint: "/api/groups",
+    method: "DELETE",
+    fields: { id: "input" },
+  },
+  {
+    name: "Get Filters",
+    endpoint: "/api/filters",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
+    name: "Add Filter",
+    endpoint: "/api/filters",
+    method: "POST",
+    fields: { filter: "input" },
+  },
+  {
+    name: "Delete Filter",
+    endpoint: "/api/filters",
+    method: "DELETE",
+    fields: { filter: "input" },
+  },
+  {
+    name: "Filter Posts",
+    endpoint: "/api/posts",
+    method: "GET",
+    fields: { filterList: "input" },
+  },
+  {
+    name: "Create Quiz",
+    endpoint: "/api/quizzes",
+    method: "POST",
+    fields: { question: "input", answer: "input", options: "textarea", tags: "textarea" },
+  },
+  {
+    name: "Get Quizzes (empty for all)",
+    endpoint: "/api/quizzes",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
+    name: "Modify Quiz",
+    endpoint: "/api/quizzes/:id",
+    method: "PATCH",
+    fields: { id: "input", question: "input", answer: "input", options: "textarea", tags: "textarea" },
+  },
+  {
+    name: "Delete Quiz",
+    endpoint: "/api/quizzes",
+    method: "DELETE",
+    fields: { id: "input" },
   },
 ];
 

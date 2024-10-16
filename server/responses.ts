@@ -1,6 +1,9 @@
 import { Authing } from "./app";
+import { FilterDoc } from "./concepts/filtering";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friending";
+import { GroupDoc } from "./concepts/grouping";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/posting";
+import { QuizDoc } from "./concepts/quizzing";
 import { Router } from "./framework/router";
 
 /**
@@ -25,6 +28,46 @@ export default class Responses {
   static async posts(posts: PostDoc[]) {
     const authors = await Authing.idsToUsernames(posts.map((post) => post.author));
     return posts.map((post, i) => ({ ...post, author: authors[i] }));
+  }
+
+  /**
+   * Convert GroupDoc into more readable format for the frontend
+   * by converting the member ids into usernames.
+   */
+  static async groups(groups: GroupDoc[]) {
+    const memberIds = groups.flatMap((group) => group.members);
+    const usernames = await Authing.idsToUsernames(memberIds);
+    let usernameIndex = 0;
+    return groups.map((group) => {
+      const members = group.members.map(() => usernames[usernameIndex++]);
+      return { ...group, members };
+    });
+  }
+  /**
+   * Convert filter names into a more readable format for the frontend.
+   */
+  static async filters(filters: FilterDoc[]) {
+    return filters.map((filter) => ({ ...filter, readableName: filter.name }));
+  }
+
+  /**
+   * Convert QuizDoc into more readable format for the frontend
+   * by converting the author id into a username.
+   */
+  static async quiz(quiz: QuizDoc | null) {
+    if (!quiz) {
+      return quiz;
+    }
+    const author = await Authing.getUserById(quiz.author);
+    return { ...quiz, author: author.username };
+  }
+
+  /**
+   * Same as {@link quiz} but for an array of QuizDoc for improved performance.
+   */
+  static async quizzes(quizzes: QuizDoc[]) {
+    const authors = await Authing.idsToUsernames(quizzes.map((quiz) => quiz.author));
+    return quizzes.map((quiz, i) => ({ ...quiz, author: authors[i] }));
   }
 
   /**
